@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kapanış Bildirisi | AMC Proje</title>
+    <meta name="description" content="Bu bir veda değil, bir kayıttır. AMC Proje Kapanış Bildirisi.">
+
+    <!-- Open Graph Meta Etiketleri -->
+    <meta property="og:title" content="Kapanış Bildirisi | AMC Proje">
+    <meta property="og:description" content="Bu bir kaçış değildir. Bu bir inkar değildir. Bu bir kayıttır.">
+    <meta property="og:image" content="https://amcproje.com.tr/acm_logo.png">
+    <meta property="og:url" content="https://amcproje.com.tr">
+    <meta name="theme-color" content="#050505">
+    
+    <!-- Google Fonts: Pinyon Script kaldırıldı, Cinzel Decorative eklendi (Daha asil başlıklar için) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Renk Paleti (Daha Soğuk ve Asil) --- */
+        :root {
+            --bg-color: #050505;
+            --text-color: #c0c0c0; /* Gümüşi Gri */
+            --accent-gold: #d4af37; /* Klasik Metalik Altın */
+            --accent-champagne: #f3e5ab; /* Şampanya Rengi */
+            --accent-dim: rgba(212, 175, 55, 0.15);
+        }
+
+        /* --- Temel Yapı --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'EB Garamond', serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Okuma İlerleme Çubuğu --- */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-champagne));
+            width: 0%;
+            z-index: 9999;
+            box-shadow: 0 0 10px var(--accent-gold);
+            transition: width 0.1s;
+        }
+
+        /* --- Arka Plan Katmanları --- */
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .spotlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 40%, #1a1a1a 0%, #000000 85%);
+            transition: background 0.2s ease-out;
+        }
+
+        .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Ana Konteyner --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 120px 30px 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- Logo --- */
+        .logo-wrapper {
+            margin-bottom: 70px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1.5s ease-out;
+        }
+        .logo-wrapper.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .logo-wrapper img {
+            width: 100%;
+            max-width: 240px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 0 25px rgba(255,255,255,0.03));
+        }
+
+        /* --- Başlık --- */
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            letter-spacing: 0.15em;
+            margin: 0 0 60px 0;
+            text-transform: uppercase;
+            color: #e6e6e6;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            position: relative;
+            padding-bottom: 25px;
+            
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1.5s ease-out 0.3s;
+        }
+        
+        h1.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            opacity: 0.8;
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        /* --- Ayraç (Separator) --- */
+        .separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 250px;
+            margin: 45px 0;
+            opacity: 0;
+            transition: opacity 1.5s ease-out;
+        }
+        .separator.visible { opacity: 0.6; }
+
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold));
+        }
+        .separator::after {
+            background: linear-gradient(90deg, var(--accent-gold), transparent);
+        }
+        
+        .separator span {
+            padding: 0 15px;
+            color: var(--accent-gold);
+            font-size: 1rem;
+        }
+
+        /* --- Metin Blokları --- */
+        .stanza {
+            margin-bottom: 60px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(40px);
+            filter: blur(4px);
+            transition: all 1.2s ease-out;
+        }
+
+        .stanza.visible {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+
+        p {
+            font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+            line-height: 1.9;
+            margin: 0 0 20px 0;
+            font-weight: 400;
+            color: var(--text-color);
+        }
+
+        .first-line {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            letter-spacing: 0.08em;
+            color: #dcdcdc;
+            font-variant: small-caps;
+        }
+
+        strong {
+            font-weight: 600;
+            color: #fff;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            padding-bottom: 1px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.15);
+        }
+
+        /* --- LİSTE BÖLÜMÜ --- */
+        .accusation-list {
+            list-style: none;
+            padding: 0;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .accusation-list li {
+            font-family: 'Cinzel', serif; /* Başlık fontuyla aynı */
+            font-size: 1.15rem;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            letter-spacing: 0.04em;
+            font-weight: 500;
+            transition: all 0.5s ease;
+            cursor: default;
+        }
+
+        .accusation-list:hover li {
+            opacity: 0.3; 
+            filter: blur(1px);
+        }
+
+        .accusation-list li:hover {
+            opacity: 1;
+            filter: blur(0);
+            color: #fff;
+            transform: scale(1.05);
+            text-shadow: 0 0 15px var(--accent-gold);
+        }
+
+        /* --- İMZA (MÜHÜR TARZI) --- */
+        .footer {
+            margin-top: 90px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease 0.5s;
+        }
+        .footer.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* El yazısı yerine çerçeveli kurumsal stil */
+        .footer-link {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.35em; /* Çok geniş harf aralığı */
+            color: var(--text-color);
+            text-decoration: none;
+            text-transform: uppercase;
+            
+            padding: 15px 35px;
+            border: 1px solid rgba(212, 175, 55, 0.3); /* İnce altın çerçeve */
+            background: rgba(0,0,0,0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Hover Efekti: Çerçeve Parlar */
+        .footer-link:hover {
+            border-color: var(--accent-gold);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* Köşe Süsleri (İmza Kutusu İçin) */
+        .footer-link::before, .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-gold);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .footer-link::before { top: -1px; left: -1px; }
+        .footer-link::after { bottom: -1px; right: -1px; }
+
+        .footer-link:hover::before, .footer-link:hover::after {
+            opacity: 1;
+        }
+
+        /* --- Mobil Ayarlar --- */
+        @media (max-width: 600px) {
+            .container { padding: 80px 20px 120px; }
+            h1 { font-size: 1.8rem; margin-bottom: 50px; }
+            .first-line { font-size: 1.25rem; }
+            .accusation-list li { font-size: 1rem; margin-bottom: 25px; }
+            .footer-link { 
+                font-size: 0.85rem; 
+                padding: 12px 25px; 
+                letter-spacing: 0.2em; 
+            }
+        }
+
+        ::selection { background: rgba(197, 160, 89, 0.3); color: #fff; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- Okuma İlerleme Çubuğu -->
+    <div id="progress-bar"></div>
+
+    <div class="background-wrapper">
+        <div class="spotlight" id="spotlight"></div>
+        <div class="noise"></div>
+        <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <div class="container">
+        
+        <div class="logo-wrapper reveal-on-scroll">
+            <img src="acm_logo.png" alt="AMC Proje Logosu">
+        </div>
+
+        <h1 class="reveal-on-scroll">Kapanış Bildirisi</h1>
+
+        <!-- 1. BÖLÜM -->
+        <div class="stanza reveal-on-scroll">
+            <span class="first-line">Bu site kapanıyor.</span>
+            <p>
+            Ama bu bir kaçış değildir.<br>
+            Bu bir inkar değildir.<br>
+            Bu bir unutma değildir.<br>
+            Bu bir <strong>kayıttır.</strong><br>
+            Bu bir <strong>tanıklıktır.</strong>
+            </p>
+        </div>
+        
+        <div class="separator reveal-on-scroll">
+            <span>❖</span>
+        </div>
+
+        <!-- 2. BÖLÜM -->
+        <div class="stanza reveal-on-scroll">
+            <p>Burada yalnızca bir şirket yoktu.<br>
+            Burada emek vardı. Niyet vardı.<br>
+            Sorumluluk vardı. İnsan kalma çabası vardı.</p>
+            
+            <p>Bu yapı borçlandı.<br>
+            Ama iflas eden biz değiliz.<br>
+            Çünkü bazı yapılar kötü niyetle değil, <strong>vicdansızlıkla</strong> çöker.<br>
+            Bazı emekler düşmanla değil, <strong>sessizlikle</strong> tükenir.<br>
+            Bazı hayaller rekabetle değil, <strong>adaletsizlikle</strong> biter.</p>
+        </div>
+
+        <!-- 3. BÖLÜM: ODAKLANAN LİSTE -->
+        <div class="stanza reveal-on-scroll">
+            <p>Bu sayfa kapanıyor; çünkü bu yol burada tamamlandı.</p>
+            
+            <ul class="accusation-list">
+                <li>Yalanı hayat biçimi yapanlara</li>
+                <li>Arkadan iş çevirip önden dua edenlere</li>
+                <li>Söz verip sözünü unutanlara</li>
+                <li>Ahlakı dilinde taşıyıp kalbinde taşımayanlara</li>
+                <li>“Yar” deyip ilk fırtınada kaçanlara</li>
+                <li>Menfaat bitince yok olanlara</li>
+                <li>Dost gibi görünüp ganimet sayanlara</li>
+                <li>İnancı vitrin, vicdanı aksesuar yapanlara…</li>
+            </ul>
+            
+            <p style="margin-top: 40px; color: #fff;">
+                Bu yapı onlar için kurulmadı.<br>
+                Ama onlar yüzünden kapandı.
+            </p>
+        </div>
+        
+        <div class="separator reveal-on-scroll">
+            <span>❖</span>
+        </div>
+
+        <!-- 4. BÖLÜM -->
+        <div class="stanza reveal-on-scroll">
+            <p>Bu satırlar kinle yazılmadı.<br>
+            İntikamla değil; <strong>uyanışla</strong> yazıldı.<br>
+            Çünkü bu yolda şunu öğrendik...</p>
+            
+            <p>Bazı insanlar sevmez, kullanır.<br>
+            Bazıları kıskanmaz, hesaplar.<br>
+            Bazıları ihanet etmez, satın almaya çalışır.<br>
+            Bazıları zarar vermez; insanı kendine yabancılaştırır.</p>
+        </div>
+
+        <!-- 5. BÖLÜM -->
+        <div class="stanza reveal-on-scroll">
+            <p>Biz kırıldık.<br>
+            Biz yalnız bırakıldık.<br>
+            Biz sustuk.<br>
+            Biz yok sayıldık.<br>
+            Ama dağılmadık.</p>
+        </div>
+
+        <!-- 6. BÖLÜM -->
+        <div class="stanza reveal-on-scroll">
+            <p>Bu kapanış bir son değildir.<br>
+            Biz kin taşımıyoruz. Ama unutmuyoruz.<br>
+            Lanet etmiyoruz. Ama kayda geçiriyoruz.<br>
+            Bağırmıyoruz. Ama görüyoruz.</p>
+            
+            <p>Çünkü bazı hesaplar insanla görülmez.<br>
+            Bazı teraziler bu dünyada kurulmaz.<br>
+            Ve bazı sonuçlar sessizce gelir.</p>
+        </div>
+
+        <!-- YENİLENMİŞ, CİDDİ İMZA -->
+        <div class="footer reveal-on-scroll">
+            <a href="#" class="footer-link">AMCPROJE.COM.TR</a>
+        </div>
+    </div>
+
+    <script>
+        /* --- 1. SCROLL REVEAL --- */
+        document.addEventListener("DOMContentLoaded", function() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+
+            const elements = document.querySelectorAll('.reveal-on-scroll');
+            elements.forEach(el => observer.observe(el));
+        });
+
+        /* --- 2. PROGRESS BAR --- */
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        };
+
+        /* --- 3. MOUSE SPOTLIGHT --- */
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth * 100;
+            const y = e.clientY / window.innerHeight * 100;
+            const spotlight = document.getElementById('spotlight');
+            spotlight.style.background = 
+                `radial-gradient(circle at ${x}% ${y}%, #222 0%, #000 75%)`;
+        });
+
+        /* --- 4. PARTICLE SYSTEM --- */
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        setCanvasSize();
+        window.addEventListener('resize', () => { setCanvasSize(); initParticles(); });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2; 
+                this.speedX = (Math.random() * 0.15) - 0.075;
+                this.speedY = (Math.random() * 0.15) - 0.075;
+                // Şampanya rengi tozlar
+                this.color = `rgba(212, 175, 55, ${Math.random() * 0.25})`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            const count = Math.min(window.innerWidth / 15, 60);
+            for (let i = 0; i < count; i++) particlesArray.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+    </script>
+</body>
+</html>
